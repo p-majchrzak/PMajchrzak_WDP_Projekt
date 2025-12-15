@@ -23,9 +23,9 @@ struct Rezerwacja{
     char nazwisko[NAZWISKO];
 };
 
-void stworzBazeDanych();
+void stworzBazeDanych(); //x
 
-void wyswietlLoty();
+void wyswietlLoty(); //x
 
 void znajdzLot();
 
