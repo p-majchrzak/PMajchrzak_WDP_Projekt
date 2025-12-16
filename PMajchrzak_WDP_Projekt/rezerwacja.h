@@ -27,11 +27,11 @@ void stworzBazeDanych(); //x
 
 void wyswietlLoty(); //x
 
-void znajdzLot();
+int znajdzLot(int id, Lot *lot); //x
 
 void rezerwacjaBiletu();
 
-void dodajLot(int id_lotu, const char* odlot, const char*przylot, int miejsca, double cena);
+void dodajLot(int id_lotu, const char* odlot, const char*przylot, int miejsca, double cena); //x
 
 void usunLot();
 

@@ -77,3 +77,34 @@ void dodajLot(int id_lotu, const char* odlot, const char*przylot, int miejsca, d
     printf("Nowy lot o numerze %d zostal dodany.",id_lotu);
     fclose(plik);
 }
+
+long miejsceLotuWPliku(int id)
+{
+    FILE *plik = fopen(BAZA_LOTY, "rb");
+    if(plik == nullptr)return -1;
+    Lot lot;
+    long rekord = 0;
+    while(fread(&lot, sizeof(Lot), 1, plik) == 1){
+        if(lot.id_lotu == id)
+        {
+            fclose(plik);
+            return rekord;
+        }
+    }
+    fclose(plik);
+    return -1;
+}
+
+int znajdzLot(int id, Lot *lot){
+    long rekord = miejsceLotuWPliku(id);
+    if(rekord == -1) return 0;
+    
+    FILE *plik = fopen(BAZA_LOTY, "rb");
+    if(plik == nullptr) return 0;
+    
+    fseek(plik, rekord, SEEK_SET);
+    fread(lot, sizeof(Lot), 1,plik);
+    
+    fclose(plik);
+    return 0;
+}
