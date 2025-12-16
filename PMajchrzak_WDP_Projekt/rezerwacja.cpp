@@ -3,6 +3,23 @@
 #include <cstring>
 #include <cstdio>
 
+long miejsceLotuWPliku(int id)
+{
+    FILE *plik = fopen(BAZA_LOTY, "rb");
+    if(plik == nullptr)return -1;
+    Lot lot;
+    long rekord = 0;
+    while(fread(&lot, sizeof(Lot), 1, plik) == 1){
+        if(lot.id_lotu == id)
+        {
+            fclose(plik);
+            return rekord;
+        }
+    }
+    fclose(plik);
+    return -1;
+}
+
 void stworzBazeDanych()
 {
     FILE *loty = fopen(BAZA_LOTY, "ab");
@@ -62,7 +79,11 @@ void dodajLot(int id_lotu, const char* odlot, const char*przylot, int miejsca, d
         printf("Jedna z ponizszych danych nie jest dodatnia: ID lotu, cena, ilosc dostepnych miejsc.");
         return;
     }
-    //dodac zabezpieczenie w momencie gdy mamy juz lot o danym id
+    if(miejsceLotuWPliku(id_lotu) != -1)
+    {
+        printf("Istnieje juz lot o takim numerze!");
+        return;
+    }
     
     FILE *plik = fopen(BAZA_LOTY, "ab");
     Lot nowy;
@@ -78,22 +99,7 @@ void dodajLot(int id_lotu, const char* odlot, const char*przylot, int miejsca, d
     fclose(plik);
 }
 
-long miejsceLotuWPliku(int id)
-{
-    FILE *plik = fopen(BAZA_LOTY, "rb");
-    if(plik == nullptr)return -1;
-    Lot lot;
-    long rekord = 0;
-    while(fread(&lot, sizeof(Lot), 1, plik) == 1){
-        if(lot.id_lotu == id)
-        {
-            fclose(plik);
-            return rekord;
-        }
-    }
-    fclose(plik);
-    return -1;
-}
+
 
 int znajdzLot(int id, Lot *lot){
     long rekord = miejsceLotuWPliku(id);
