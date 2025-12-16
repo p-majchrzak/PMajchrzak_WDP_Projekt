@@ -108,3 +108,34 @@ int znajdzLot(int id, Lot *lot){
     fclose(plik);
     return 0;
 }
+
+void usunLot(int id_lotu){
+    long wiersz = miejsceLotuWPliku(id_lotu);
+    if(wiersz == -1 || wiersz <= 0)
+    {
+        printf("Podany lot nie istnieje!");
+    }
+    FILE *plik = fopen(BAZA_LOTY, "rb");
+    FILE *plik_temp = fopen("temp_data.bin","wb");
+    
+    if(plik == nullptr || plik_temp == nullptr)
+    {
+        printf("Nie udalo sie otworzyc plikow!");
+        if(plik)fclose(plik);
+        if(plik_temp)fclose(plik);
+        return;
+    }
+    
+    Lot lot;
+    while(fread(&lot, sizeof(Lot),1 ,plik_temp) == 1){
+        if(lot.id_lotu != id_lotu) fwrite(&lot, sizeof(Lot), 1, plik_temp);
+    }
+    
+    fclose(plik);
+    fclose(plik_temp);
+    
+    remove(BAZA_LOTY);
+    rename("temp_data.bin", BAZA_LOTY);
+    
+    printf("Lot numer %d zostal usuniety!",id_lotu);
+}

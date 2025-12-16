@@ -33,7 +33,7 @@ void rezerwacjaBiletu();
 
 void dodajLot(int id_lotu, const char* odlot, const char*przylot, int miejsca, double cena); //x
 
-void usunLot();
+void usunLot(int id_lotu);
 
 void edytujLot();
 
