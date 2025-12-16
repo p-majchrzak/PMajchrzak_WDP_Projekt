@@ -54,3 +54,26 @@ void wyswietlLoty()
     }
     fclose(plik);
 }
+
+void dodajLot(int id_lotu, const char* odlot, const char*przylot, int miejsca, double cena){
+    
+    if(miejsca <= 0 || cena <= 0.0 || id_lotu <= 0)
+    {
+        printf("Jedna z ponizszych danych nie jest dodatnia: ID lotu, cena, ilosc dostepnych miejsc.");
+        return;
+    }
+    //dodac zabezpieczenie w momencie gdy mamy juz lot o danym id
+    
+    FILE *plik = fopen(BAZA_LOTY, "ab");
+    Lot nowy;
+    nowy.id_lotu = id_lotu;
+    nowy.cena = cena;
+    nowy.dostepne_miejsca = miejsca;
+    strncpy(nowy.miasto_odlotu, odlot, MIASTO-1);
+    nowy.miasto_odlotu[MIASTO-1] = '\0';
+    strncpy(nowy.miasto_przylotu, przylot, MIASTO-1);
+    nowy.miasto_przylotu[MIASTO-1] = '\0';
+    fwrite(&nowy,sizeof(Lot) ,1 ,plik );
+    printf("Nowy lot o numerze %d zostal dodany.",id_lotu);
+    fclose(plik);
+}

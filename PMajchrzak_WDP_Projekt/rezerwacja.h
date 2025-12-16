@@ -31,7 +31,7 @@ void znajdzLot();
 
 void rezerwacjaBiletu();
 
-void dodajLot();
+void dodajLot(int id_lotu, const char* odlot, const char*przylot, int miejsca, double cena);
 
 void usunLot();
 
