@@ -37,6 +37,6 @@ void usunLot(int id_lotu);// x
 
 void edytujLot();
 
-void listaPasazerow();
+void listaPasazerow(int id_lotu); //x
 
 #endif

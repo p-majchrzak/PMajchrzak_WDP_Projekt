@@ -145,3 +145,43 @@ void usunLot(int id_lotu){
     
     printf("Lot numer %d zostal usuniety!",id_lotu);
 }
+
+void listaPasazerow(int id_lotu){
+    if(id_lotu <= 0)
+    {
+        printf("Bledny numer lotu!");
+        return;
+    }
+    
+    FILE *plik = fopen(BAZA_REZERWACJE, "rb");
+    if(plik == nullptr){
+        printf("Blad polaczenia z baza danych!");
+        return;
+    }
+    
+    Lot lot;
+    if(!znajdzLot(id_lotu, &lot))
+    {
+        printf("Lot o podanym numerze nie istnieje!");
+        fclose(plik);
+        return;
+    }
+    printf("Pasazerowie lotu numer %d",id_lotu);
+    printf("ID Rezerwacji| Imie| Nazwisko");
+    printf("----------------------------");
+    Rezerwacja rezerwacja;
+    int czyZnaleziono = 0;
+    while(fread(&rezerwacja,sizeof(Rezerwacja),1,plik)==1)
+    {
+        if(rezerwacja.id_lotu == id_lotu)
+        {
+            printf("| %d | %s | %s |\n", rezerwacja.id_rezerwacja, rezerwacja.imie, rezerwacja.nazwisko);
+            czyZnaleziono = 1;
+        }
+    }
+    
+    if(!czyZnaleziono){
+        printf("Brak rezerwacji!");
+    }
+    fclose(plik);
+}
