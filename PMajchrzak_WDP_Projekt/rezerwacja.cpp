@@ -1,7 +1,26 @@
-#include "rezerwacja.h"
 #include <cstdlib>
 #include <cstring>
 #include <cstdio>
+#include "rezerwacja.h"
+
+long miejsceLotuWPliku(int id)
+{
+    FILE *plik = fopen(BAZA_LOTY, "rb");
+    if(plik == nullptr)return -1;
+    
+    Lot lot;
+    long rekord = 0;
+    while(fread(&lot, sizeof(Lot), 1, plik) == 1){
+        if(lot.id_lotu == id)
+        {
+            fclose(plik);
+            return rekord;
+        }
+        rekord = ftell(plik);
+    }
+    fclose(plik);
+    return -1;
+}
 
 int ostatniaRezerwacjaID()
 {
@@ -26,22 +45,7 @@ int ostatniaRezerwacjaID()
     return id_szukane;
 }
 
-long miejsceLotuWPliku(int id)
-{
-    FILE *plik = fopen(BAZA_LOTY, "rb");
-    if(plik == nullptr)return -1;
-    Lot lot;
-    long rekord = 0;
-    while(fread(&lot, sizeof(Lot), 1, plik) == 1){
-        if(lot.id_lotu == id)
-        {
-            fclose(plik);
-            return rekord;
-        }
-    }
-    fclose(plik);
-    return -1;
-}
+
 
 void stworzBazeDanych()
 {
@@ -63,7 +67,7 @@ void stworzBazeDanych()
 
 void wyswietlLoty()
 {
-    FILE *plik = fopen(BAZA_LOTY, "rb");
+    FILE* plik = fopen(BAZA_LOTY, "rb");
     if(plik == nullptr){
         printf("Blad bazy danych.");
         return;
@@ -77,6 +81,7 @@ void wyswietlLoty()
         return;
     }
     fseek(plik, 0, SEEK_SET);
+    
     printf("\n LOTY \n");
     printf("| ID  | Odlot | Przylot | Miejsca | Cena |\n");
     
@@ -91,6 +96,68 @@ void wyswietlLoty()
         printf("----------------------------------------\n");
     }
     fclose(plik);
+}
+
+int znajdzLot(int id, Lot *lot){
+    long rekord = miejsceLotuWPliku(id);
+    if(rekord == -1) return 0;
+    
+    FILE *plik = fopen(BAZA_LOTY, "rb");
+    if(plik == nullptr) return 0;
+    
+    fseek(plik, rekord, SEEK_SET);
+    fread(lot, sizeof(Lot), 1,plik);
+    
+    fclose(plik);
+    return 1;
+}
+
+void rezerwacjaBiletu(int id_lotu, const char*imie, const char* nazwisko){
+    Lot zamienianyLot;
+    long rekordLotu = miejsceLotuWPliku(id_lotu);
+    
+    if(id_lotu <= 0 || rekordLotu == -1 || !znajdzLot(id_lotu, &zamienianyLot))
+    {
+        printf("Nie znaleziono lotu o podanym numerze!");
+        return;
+    }
+    
+    if(zamienianyLot.dostepne_miejsca <= 0)
+    {
+        printf("Brak miejsc w locie numer %d",id_lotu);
+        return;
+    }
+    
+    FILE *plikLoty = fopen(BAZA_LOTY, "r+b");
+    if(plikLoty == nullptr){
+        printf("Blad polaczenia z baza danych!");
+        return;
+    }
+    
+    zamienianyLot.dostepne_miejsca--;
+    fseek(plikLoty, rekordLotu, SEEK_SET);
+    fwrite(&zamienianyLot, sizeof(Lot), 1, plikLoty);
+    fclose(plikLoty);
+    
+    FILE *plikRezerwacja = fopen(BAZA_REZERWACJE, "ab");
+    if(plikRezerwacja == nullptr){
+        printf("Blad polaczenia z baza danych!");
+        return;
+    }
+    
+    Rezerwacja nowaRezerwacja;
+    nowaRezerwacja.id_rezerwacja = ostatniaRezerwacjaID()+1;
+    nowaRezerwacja.id_lotu = id_lotu;
+    
+    strncpy(nowaRezerwacja.imie, imie, IMIE_MAKS);
+    nowaRezerwacja.imie[IMIE_MAKS-1] = '\0';
+    strncpy(nowaRezerwacja.nazwisko, nazwisko, NAZWISKO_MAKS);
+    nowaRezerwacja.nazwisko[NAZWISKO_MAKS - 1] = '\0';
+    
+    fwrite(&nowaRezerwacja, sizeof(Rezerwacja),1, plikRezerwacja);
+    fclose(plikRezerwacja);
+    
+    printf("Dokonano rezerwacji.");
 }
 
 void dodajLot(int id_lotu, const char* odlot, const char*przylot, int miejsca, double cena){
@@ -111,34 +178,18 @@ void dodajLot(int id_lotu, const char* odlot, const char*przylot, int miejsca, d
     nowy.id_lotu = id_lotu;
     nowy.cena = cena;
     nowy.dostepne_miejsca = miejsca;
-    strncpy(nowy.miasto_odlotu, odlot, MIASTO-1);
-    nowy.miasto_odlotu[MIASTO-1] = '\0';
-    strncpy(nowy.miasto_przylotu, przylot, MIASTO-1);
-    nowy.miasto_przylotu[MIASTO-1] = '\0';
+    strncpy(nowy.miasto_odlotu, odlot, MIASTO_MAKS-1);
+    nowy.miasto_odlotu[MIASTO_MAKS-1] = '\0';
+    strncpy(nowy.miasto_przylotu, przylot, MIASTO_MAKS-1);
+    nowy.miasto_przylotu[MIASTO_MAKS-1] = '\0';
     fwrite(&nowy,sizeof(Lot) ,1 ,plik );
     printf("Nowy lot o numerze %d zostal dodany.",id_lotu);
     fclose(plik);
 }
 
-
-
-int znajdzLot(int id, Lot *lot){
-    long rekord = miejsceLotuWPliku(id);
-    if(rekord == -1) return 0;
-    
-    FILE *plik = fopen(BAZA_LOTY, "rb");
-    if(plik == nullptr) return 0;
-    
-    fseek(plik, rekord, SEEK_SET);
-    fread(lot, sizeof(Lot), 1,plik);
-    
-    fclose(plik);
-    return 0;
-}
-
 void usunLot(int id_lotu){
     long wiersz = miejsceLotuWPliku(id_lotu);
-    if(wiersz == -1 || wiersz <= 0)
+    if(wiersz <= 0)
     {
         printf("Podany lot nie istnieje!");
         return;
@@ -150,13 +201,17 @@ void usunLot(int id_lotu){
     {
         printf("Nie udalo sie otworzyc plikow!");
         if(plik)fclose(plik);
-        if(plik_temp)fclose(plik);
+        if(plik_temp)fclose(plik_temp);
         return;
     }
     
     Lot lot;
-    while(fread(&lot, sizeof(Lot),1 ,plik_temp) == 1){
-        if(lot.id_lotu != id_lotu) fwrite(&lot, sizeof(Lot), 1, plik_temp);
+    while(fread(&lot, sizeof(Lot),1 ,plik) == 1){
+        if(lot.id_lotu != id_lotu)
+        {
+            fwrite(&lot, sizeof(Lot), 1, plik_temp);
+        }
+        
     }
     
     fclose(plik);
@@ -241,50 +296,4 @@ void edytujLot(int lot_id, int ilosc_miejsc, int cena){
     
     fclose(plik);
 }
-void rezerwacjaBiletu(int id_lotu, const char*imie, const char* nazwisko){
-    Lot zamienianyLot;
-    long rekordLotu = miejsceLotuWPliku(id_lotu);
-    
-    if(id_lotu <= 0 || rekordLotu == -1 || !znajdzLot(id_lotu, &zamienianyLot))
-    {
-        printf("Nie znaleziono lotu o podanym numerze!");
-        return;
-    }
-    
-    if(zamienianyLot.dostepne_miejsca <= 0)
-    {
-        printf("Brak miejsc w locie numer %d",id_lotu);
-        return;
-    }
-    
-    FILE *plikLoty = fopen(BAZA_LOTY, "r+b");
-    if(plikLoty == nullptr){
-        printf("Blad polaczenia z baza danych!");
-        return;
-    }
-    
-    zamienianyLot.dostepne_miejsca--;
-    fseek(plikLoty, rekordLotu, SEEK_SET);
-    fwrite(&zamienianyLot, sizeof(Lot), 1, plikLoty);
-    fclose(plikLoty);
-    
-    FILE *plikRezerwacja = fopen(BAZA_REZERWACJE, "ab");
-    if(plikRezerwacja == nullptr){
-        printf("Blad polaczenia z baza danych!");
-        return;
-    }
-    
-    Rezerwacja nowaRezerwacja;
-    nowaRezerwacja.id_rezerwacja = ostatniaRezerwacjaID()+1;
-    nowaRezerwacja.id_lotu = id_lotu;
-    
-    strncpy(nowaRezerwacja.imie, imie, IMIE);
-    nowaRezerwacja.imie[IMIE-1] = '\0';
-    strncpy(nowaRezerwacja.nazwisko, nazwisko, NAZWISKO);
-    nowaRezerwacja.nazwisko[NAZWISKO - 1] = '\0';
-    
-    fwrite(&nowaRezerwacja, sizeof(Rezerwacja),1, plikRezerwacja);
-    fclose(plikRezerwacja);
-    
-    printf("Dokonano rezerwacji.");
-}
+

@@ -68,8 +68,8 @@ int main() {
         
         int id, miejsca;
         double cena;
-        char imie[IMIE], nazwisko[NAZWISKO];
-        char odlot[MIASTO], przylot[MIASTO];
+        char imie[IMIE_MAKS], nazwisko[NAZWISKO_MAKS];
+        char odlot[MIASTO_MAKS], przylot[MIASTO_MAKS];
         char haslo[20];
         
         if(tryb == 0)
