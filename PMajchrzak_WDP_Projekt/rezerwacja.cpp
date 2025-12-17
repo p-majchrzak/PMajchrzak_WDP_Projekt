@@ -185,3 +185,37 @@ void listaPasazerow(int id_lotu){
     }
     fclose(plik);
 }
+
+void edytujLot(int lot_id, int ilosc_miejsc, int cena){
+    long pozycja_lotu = miejsceLotuWPliku(lot_id);
+    if(lot_id <= 0 || pozycja_lotu ==-1)
+    {
+        printf("Bledny numer lotu!");
+        return;
+    }
+    if(ilosc_miejsc <=0 || cena <= 0)
+    {
+        printf("Bledna ilosc miejsc, badz cena. Obydwie wartosci musza byc dodatnie.");
+        return;
+    }
+    FILE *plik = fopen(BAZA_LOTY, "r+b");
+    if(plik == nullptr)
+    {
+        printf("Blad polaczenia z baza danych!");
+        return;
+    }
+    
+    Lot zamieniany;
+    fseek(plik,pozycja_lotu,SEEK_SET);
+    fread(&zamieniany, sizeof(Lot), 1, plik);
+    
+    zamieniany.dostepne_miejsca = ilosc_miejsc;
+    zamieniany.cena = cena;
+    
+    fseek(plik, pozycja_lotu, SEEK_SET);
+    fwrite(&zamieniany, sizeof(Lot), 1, plik);
+    
+    printf("Lot zostal zaaktualizowny!");
+    
+    fclose(plik);
+}

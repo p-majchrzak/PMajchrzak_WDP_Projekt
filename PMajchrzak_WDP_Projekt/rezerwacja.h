@@ -35,7 +35,7 @@ void dodajLot(int id_lotu, const char* odlot, const char*przylot, int miejsca, d
 
 void usunLot(int id_lotu);// x
 
-void edytujLot();
+void edytujLot(int lot_id, int ilosc_miejsc, int cena);
 
 void listaPasazerow(int id_lotu); //x
 
