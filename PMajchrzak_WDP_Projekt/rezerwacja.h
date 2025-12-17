@@ -1,12 +1,12 @@
 #ifndef REZERWACJE
 #define REZERWACJE
 
-#define BAZA_LOTY "loty.bin"
-#define BAZA_REZERWACJE "rezerwacje.bin"
-
 #define MIASTO 25
 #define IMIE 25
 #define NAZWISKO 25
+
+#define BAZA_LOTY "loty.bin"
+#define BAZA_REZERWACJE "rezerwacje.bin"
 
 struct Lot{
     int id_lotu;

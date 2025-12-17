@@ -45,8 +45,8 @@ long miejsceLotuWPliku(int id)
 
 void stworzBazeDanych()
 {
-    FILE *loty = fopen(BAZA_LOTY, "ab");
-    FILE *rezerwacje = fopen(BAZA_REZERWACJE, "ab");
+    FILE* loty = fopen(BAZA_LOTY, "ab");
+    FILE* rezerwacje = fopen(BAZA_REZERWACJE, "ab");
     
     if(rezerwacje == nullptr || loty == nullptr)
     {
@@ -55,9 +55,7 @@ void stworzBazeDanych()
         if(loty) fclose(loty);
         return;
     }
-    else{
-        printf("Bazy danych zostaly wczystane/zaladowane.");
-    }
+    
     fclose(rezerwacje);
     fclose(loty);
     
@@ -65,7 +63,7 @@ void stworzBazeDanych()
 
 void wyswietlLoty()
 {
-    FILE * plik = fopen(BAZA_LOTY, "rb");
+    FILE *plik = fopen(BAZA_LOTY, "rb");
     if(plik == nullptr){
         printf("Blad bazy danych.");
         return;
@@ -143,6 +141,7 @@ void usunLot(int id_lotu){
     if(wiersz == -1 || wiersz <= 0)
     {
         printf("Podany lot nie istnieje!");
+        return;
     }
     FILE *plik = fopen(BAZA_LOTY, "rb");
     FILE *plik_temp = fopen("temp_data.bin","wb");
