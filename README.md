@@ -1,4 +1,3 @@
-Oto propozycja kompletnego pliku `README.md` przygotowanego na podstawie dostarczonego kodu źródłowego oraz dokumentacji technicznej.
 
 ---
 
