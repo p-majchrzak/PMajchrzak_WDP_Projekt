@@ -3,6 +3,29 @@
 #include <cstring>
 #include <cstdio>
 
+int ostatniaRezerwacjaID()
+{
+    FILE *plik = fopen(BAZA_REZERWACJE, "rb");
+    if(plik == nullptr){
+        return 0;
+    }
+    Rezerwacja rezerwacja;
+    int id_szukane = 0;
+    fseek(plik, 0, SEEK_END);
+    long rozmiar = ftell(plik);
+    
+    if(rozmiar >= sizeof(Rezerwacja))
+    {
+        fseek(plik, - (long)sizeof(Rezerwacja), SEEK_END);
+        if(fread(&rezerwacja, sizeof(Rezerwacja),1,plik) == 1)
+        {
+            id_szukane = rezerwacja.id_lotu;
+        }
+    }
+    fclose(plik);
+    return id_szukane;
+}
+
 long miejsceLotuWPliku(int id)
 {
     FILE *plik = fopen(BAZA_LOTY, "rb");
@@ -218,4 +241,51 @@ void edytujLot(int lot_id, int ilosc_miejsc, int cena){
     printf("Lot zostal zaaktualizowny!");
     
     fclose(plik);
+}
+void rezerwacjaBiletu(int id_lotu, const char*imie, const char* nazwisko){
+    Lot zamienianyLot;
+    long rekordLotu = miejsceLotuWPliku(id_lotu);
+    
+    if(id_lotu <= 0 || rekordLotu == -1 || !znajdzLot(id_lotu, &zamienianyLot))
+    {
+        printf("Nie znaleziono lotu o podanym numerze!");
+        return;
+    }
+    
+    if(zamienianyLot.dostepne_miejsca <= 0)
+    {
+        printf("Brak miejsc w locie numer %d",id_lotu);
+        return;
+    }
+    
+    FILE *plikLoty = fopen(BAZA_LOTY, "r+b");
+    if(plikLoty == nullptr){
+        printf("Blad polaczenia z baza danych!");
+        return;
+    }
+    
+    zamienianyLot.dostepne_miejsca--;
+    fseek(plikLoty, rekordLotu, SEEK_SET);
+    fwrite(&zamienianyLot, sizeof(Lot), 1, plikLoty);
+    fclose(plikLoty);
+    
+    FILE *plikRezerwacja = fopen(BAZA_REZERWACJE, "ab");
+    if(plikRezerwacja == nullptr){
+        printf("Blad polaczenia z baza danych!");
+        return;
+    }
+    
+    Rezerwacja nowaRezerwacja;
+    nowaRezerwacja.id_rezerwacja = ostatniaRezerwacjaID()+1;
+    nowaRezerwacja.id_lotu = id_lotu;
+    
+    strncpy(nowaRezerwacja.imie, imie, IMIE);
+    nowaRezerwacja.imie[IMIE-1] = '\0';
+    strncpy(nowaRezerwacja.nazwisko, nazwisko, NAZWISKO);
+    nowaRezerwacja.nazwisko[NAZWISKO - 1] = '\0';
+    
+    fwrite(&nowaRezerwacja, sizeof(Rezerwacja),1, plikRezerwacja);
+    fclose(plikRezerwacja);
+    
+    printf("Dokonano rezerwacji.");
 }
