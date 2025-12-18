@@ -244,8 +244,8 @@ void listaPasazerow(int id_lotu){
         return;
     }
     printf("Pasazerowie lotu numer %d",id_lotu);
-    printf("ID Rezerwacji| Imie| Nazwisko");
-    printf("----------------------------");
+    printf("\nID Rezerwacji| Imie| Nazwisko\n");
+    printf("----------------------------\n");
     Rezerwacja rezerwacja;
     int czyZnaleziono = 0;
     while(fread(&rezerwacja,sizeof(Rezerwacja),1,plik)==1)
