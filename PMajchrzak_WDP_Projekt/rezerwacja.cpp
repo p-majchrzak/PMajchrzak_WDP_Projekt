@@ -189,7 +189,7 @@ void dodajLot(int id_lotu, const char* odlot, const char*przylot, int miejsca, d
 
 void usunLot(int id_lotu){
     long wiersz = miejsceLotuWPliku(id_lotu);
-    if(wiersz <= 0)
+    if(wiersz == -1)
     {
         printf("Podany lot nie istnieje!");
         return;
